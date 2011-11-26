@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
@@ -259,8 +260,10 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         // Power button ends calls.
         mTogglePowerButtonEndsCallPreference =
             (CheckBoxPreference) findPreference(TOGGLE_POWER_BUTTON_ENDS_CALL_PREFERENCE);
+        PackageManager pm = getPackageManager();
         if (!KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_POWER)
-                || !Utils.isVoiceCapable(getActivity())) {
+                || !Utils.isVoiceCapable(getActivity())
+                || !pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
             mSystemsCategory.removePreference(mTogglePowerButtonEndsCallPreference);
         }
 

@@ -52,10 +52,12 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_ACCELEROMETER = "accelerometer";
     private static final String KEY_FONT_SIZE = "font_size";
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
+    private static final String KEY_CALABRATION = "tscalibration";
 
     private CheckBoxPreference mAccelerometer;
     private ListPreference mFontSizePref;
     private CheckBoxPreference mNotificationPulse;
+    private Preference mCalibration;
 
     private final Configuration mCurConfig = new Configuration();
     
@@ -102,6 +104,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                 Log.e(TAG, Settings.System.NOTIFICATION_LIGHT_PULSE + " not found");
             }
         }
+        
+        mCalibration = (Preference)findPreference(KEY_CALABRATION);
+        Utils.updatePreferenceToSpecificActivityOrRemove(getActivity(), 
+                getPreferenceScreen(), KEY_CALABRATION, 0);
     }
 
     private void updateTimeoutPreferenceDescription(long currentTimeout) {
@@ -249,7 +255,9 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(getContentResolver(), Settings.System.NOTIFICATION_LIGHT_PULSE,
                     value ? 1 : 0);
             return true;
-        }
+        } else if (preference == mCalibration ){
+            return false;
+        }        
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 

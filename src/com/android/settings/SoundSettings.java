@@ -221,6 +221,13 @@ public class SoundSettings extends SettingsPreferenceFragment implements
                 }
             }
         };
+        PackageManager pm = getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY )){
+            boolean ret = mRingtonePreference != null ? 
+                    getPreferenceScreen().removePreference(mRingtonePreference) : false;
+            ret = mDtmfTone != null ?
+                    getPreferenceScreen().removePreference(mDtmfTone) : false;
+        }
     }
 
     @Override

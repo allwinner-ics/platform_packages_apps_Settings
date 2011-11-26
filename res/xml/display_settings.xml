@@ -59,5 +59,13 @@
             android:key="notification_pulse"
             android:title="@string/notification_pulse_title"
             android:persistent="false" />
+        
+        <Preference
+            android:key="tscalibration"
+            android:title="@string/tscalibration_title">
+            <intent
+                android:targetPackage="org.zeroxlab.util.tscal"
+                android:targetClass="org.zeroxlab.util.tscal.TSCalibration" />
+        </Preference>
 
 </PreferenceScreen>

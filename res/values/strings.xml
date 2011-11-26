@@ -3764,4 +3764,5 @@ found in the list of installed apps.</string>
     <!-- Representation of a numerical percentage. [CHAR LIMIT=8] -->
     <string name="percentage"><xliff:g id="number" example="30">%d</xliff:g>%%</string>
 
+    <string name="tscalibration_title">Calibrating the touch screen</string>
 </resources>
