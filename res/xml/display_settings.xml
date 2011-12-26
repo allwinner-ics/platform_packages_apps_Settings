@@ -59,6 +59,21 @@
             android:key="notification_pulse"
             android:title="@string/notification_pulse_title"
             android:persistent="false" />
+        <ListPreference
+            android:key="accelerometer_coornadite"
+            android:title="@string/accelerometer_coordinate_title"
+            android:persistent="false"
+            android:entries="@array/accelerometer_entries"
+            android:entryValues="@array/accelerometer_values" />
+        
+        <PreferenceScreen
+            android:title="@string/screen_adaption_setting"
+            android:summary="@string/screen_adaption_summary">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetPackage="com.android.settings"
+                android:targetClass="com.android.settings.ScreenAdaption" />
+        </PreferenceScreen>
         
         <Preference
             android:key="tscalibration"

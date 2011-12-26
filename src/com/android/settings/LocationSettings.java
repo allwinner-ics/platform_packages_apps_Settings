@@ -16,10 +16,11 @@
 
 package com.android.settings;
 
-
+import com.android.settings.R;
 import android.content.ContentQueryMap;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.LocationManager;
 import android.preference.CheckBoxPreference;
@@ -103,6 +104,9 @@ public class LocationSettings extends SettingsPreferenceFragment
         // Change the summary for wifi-only devices
         if (Utils.isWifiOnly(getActivity())) {
             mNetwork.setSummaryOn(R.string.location_neighborhood_level_wifi);
+        }
+        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)){
+            getPreferenceScreen().removePreference(mGps);
         }
 
         return root;

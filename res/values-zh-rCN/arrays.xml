@@ -37,6 +37,7 @@
     <item msgid="7489864775127957179">"5 分钟"</item>
     <item msgid="2314124409517439288">"10 分钟"</item>
     <item msgid="6864027152847611413">"30 分钟"</item>
+    <item name="nerver_sleep">"从不休眠"</item>
   </string-array>
   <string-array name="dream_timeout_entries">
     <item msgid="3149294732238283185">"从不"</item>
@@ -273,5 +274,23 @@
     <item msgid="4039737283841672166">"已连接"</item>
     <item msgid="4042143101664725090">"超时"</item>
     <item msgid="7664124146786465092">"失败"</item>
+  </string-array>
+  
+  <!-- ++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!--           new strings for crane                -->
+  <!-- ListPreference accelerometer coornadite -->
+  <string-array name="accelerometer_entries">
+      <item >默认坐标系.</item>
+      <item >特殊坐标系,用于支持某些游戏 .</item>
+  </string-array>
+
+  <string-array name="accelerometer_summaries">
+      <item >使用默认坐标系.</item>
+      <item >使用特殊坐标系,以便支持某些游戏 .</item>
+  </string-array>
+  
+  <string-array name="display_mode_list_entries">
+    <!-- <item>全屏</item> -->
+    <item>居中</item>
   </string-array>
 </resources>

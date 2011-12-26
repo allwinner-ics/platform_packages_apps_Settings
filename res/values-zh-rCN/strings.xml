@@ -683,7 +683,7 @@
     <string name="system_update_settings_list_item_summary" msgid="3853057315907710747"></string>
     <string name="firmware_version" msgid="4801135784886859972">"Android 版本"</string>
     <string name="model_number" msgid="3765737700545384794">"型号"</string>
-    <string name="baseband_version" msgid="1848990160763524801">"基带版本"</string>
+    <string name="baseband_version" msgid="1848990160763524801">"固件版本"</string>
     <string name="kernel_version" msgid="9192574954196167602">"内核版本"</string>
     <string name="build_number" msgid="3075795840572241758">"版本号"</string>
     <string name="device_info_not_available" msgid="8062521887156825182">"不可用"</string>
@@ -1572,5 +1572,15 @@
     <string name="backup_pw_set_button_text" msgid="2387480910044648795">"设置备份密码"</string>
     <string name="backup_pw_cancel_button_text" msgid="8845630125391744615">"取消"</string>
     <string name="percentage" msgid="5866131581207788624">"<xliff:g id="NUMBER">%d</xliff:g>%%"</string>
+    
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!--               new strings for crane                  -->
     <string name="tscalibration_title">"校准触摸屏"</string>
+    <string name="accelerometer_coordinate_title">重力感应坐标系</string>
+    <string name="screen_adaption_title">启用屏幕适配</string>
+    <string name="screen_adaption_summary">用于调整部分游戏的屏幕显示尺寸.</string>
+    <string name="screen_adaption_summary_off">当前分辨率：</string>
+    <string name="screen_adaption_summary_on">点击确认后重启生效</string>
+    <string name="display_mode_selector_title">显示模式</string>
+    <string name="screen_adaption_setting">屏幕适配</string>
 </resources>

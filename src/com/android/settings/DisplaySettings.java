@@ -38,6 +38,7 @@ import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.view.IWindowManager;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -53,16 +54,19 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_FONT_SIZE = "font_size";
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
     private static final String KEY_CALABRATION = "tscalibration";
-
+    private static final String KEY_ACCELEROMETER_COORDINATE = "accelerometer_coornadite";
+    private static final String KEY_SCREEN_ADAPTION = "screen_adaption";
     private CheckBoxPreference mAccelerometer;
     private ListPreference mFontSizePref;
     private CheckBoxPreference mNotificationPulse;
     private Preference mCalibration;
+    private ListPreference mAccelerometerCoordinate;
 
     private final Configuration mCurConfig = new Configuration();
     
     private ListPreference mScreenTimeoutPreference;
-
+    private Preference mScreenAdaption;
+    private IWindowManager mWindowManager;
     private ContentObserver mAccelerometerRotationObserver = new ContentObserver(new Handler()) {
         @Override
         public void onChange(boolean selfChange) {
@@ -104,10 +108,29 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                 Log.e(TAG, Settings.System.NOTIFICATION_LIGHT_PULSE + " not found");
             }
         }
+        mScreenAdaption = (Preference)findPreference(KEY_SCREEN_ADAPTION);
+        WindowManager wm = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        android.view.Display display = wm.getDefaultDisplay();
+        int width     = display.getWidth();
+        int height    = display.getHeight();
+        Log.d(TAG,"rate1 = " + (width * 3.0f / (height * 5.0f)) + 
+                 " rate2 = " + (width * 5.0f / (height * 3.0f)));
+        if((width * 3.0f / (height * 5.0f) == 1.0f) ||
+           (width * 5.0f / (height * 3.0f) == 1.0f) && mScreenAdaption!=null){
+            getPreferenceScreen().removePreference(mScreenAdaption) ;   
+        }
         
         mCalibration = (Preference)findPreference(KEY_CALABRATION);
         Utils.updatePreferenceToSpecificActivityOrRemove(getActivity(), 
                 getPreferenceScreen(), KEY_CALABRATION, 0);
+        mAccelerometerCoordinate = (ListPreference) findPreference(KEY_ACCELEROMETER_COORDINATE);
+        if(mAccelerometerCoordinate != null){
+            mAccelerometerCoordinate.setOnPreferenceChangeListener(this);
+            String value = Settings.System.getString(getContentResolver(),
+                    Settings.System.ACCELEROMETER_COORDINATE);
+            mAccelerometerCoordinate.setValue(value);
+            updateAccelerometerCoordinateSummary(value);
+        }
     }
 
     private void updateTimeoutPreferenceDescription(long currentTimeout) {
@@ -219,12 +242,26 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private void updateState() {
         updateAccelerometerRotationCheckbox();
         readFontSizePreference(mFontSizePref);
+        if(mAccelerometerCoordinate != null){
+            updateAccelerometerCoordinateSummary(mAccelerometerCoordinate.getValue());
+        }
     }
 
     private void updateAccelerometerRotationCheckbox() {
         mAccelerometer.setChecked(Settings.System.getInt(
                 getContentResolver(),
                 Settings.System.ACCELEROMETER_ROTATION, 0) != 0);
+    }
+    
+    private void updateAccelerometerCoordinateSummary(Object value){       
+        CharSequence[] summaries = getResources().getTextArray(R.array.accelerometer_summaries);
+        CharSequence[] values = mAccelerometerCoordinate.getEntryValues();
+        for (int i=0; i<values.length; i++) {
+            if (values[i].equals(value)) {
+                mAccelerometerCoordinate.setSummary(summaries[i]);
+                break;
+            }
+        }
     }
 
     public void writeFontSizePreference(Object objValue) {
@@ -274,8 +311,17 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
         if (KEY_FONT_SIZE.equals(key)) {
             writeFontSizePreference(objValue);
+        }if (KEY_ACCELEROMETER_COORDINATE.equals(key))
+        {
+            String value = String.valueOf(objValue);
+            try {
+                Settings.System.putString(getContentResolver(), 
+                        Settings.System.ACCELEROMETER_COORDINATE, value);
+                updateAccelerometerCoordinateSummary(objValue);
+            }catch (NumberFormatException e) {
+                Log.e(TAG, "could not persist key accelerometer coordinate setting", e);
+            }
         }
-
         return true;
     }
 }

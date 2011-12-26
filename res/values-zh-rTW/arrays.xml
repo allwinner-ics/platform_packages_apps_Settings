@@ -37,6 +37,7 @@
     <item msgid="7489864775127957179">"5 分鐘"</item>
     <item msgid="2314124409517439288">"10 分鐘"</item>
     <item msgid="6864027152847611413">"30 分鐘"</item>
+    <item name="nerver_sleep">"從不休眠"</item>
   </string-array>
   <string-array name="dream_timeout_entries">
     <item msgid="3149294732238283185">"永不"</item>
@@ -273,5 +274,15 @@
     <item msgid="4039737283841672166">"已連線"</item>
     <item msgid="4042143101664725090">"逾時"</item>
     <item msgid="7664124146786465092">"失敗"</item>
+  </string-array>
+  
+  <string-array name="accelerometer_entries">
+    <item >默認座標系.</item>
+    <item >特殊座標系,用於支援某些遊戲  .</item>
+  </string-array>
+
+  <string-array name="accelerometer_summaries">
+    <item>使用默認座標系.</item>
+    <item>使用特殊座標系,以便支援某些遊戲 .</item>
   </string-array>
 </resources>

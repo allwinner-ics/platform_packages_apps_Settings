@@ -80,7 +80,10 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
 
         setStringSummary(KEY_FIRMWARE_VERSION, Build.VERSION.RELEASE);
         findPreference(KEY_FIRMWARE_VERSION).setEnabled(true);
-        setValueSummary(KEY_BASEBAND_VERSION, "gsm.version.baseband");
+		findPreference(KEY_BASEBAND_VERSION).setEnabled(true);
+        //setValueSummary(KEY_BASEBAND_VERSION,  Build.FIRMWARE);
+		findPreference(KEY_BASEBAND_VERSION).setSummary(Build.FIRMWARE);		
+		Log.v("fefe",Build.FIRMWARE);
         setStringSummary(KEY_DEVICE_MODEL, Build.MODEL + getMsvSuffix());
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
