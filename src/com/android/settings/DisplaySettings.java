@@ -138,14 +138,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         String summary;
         if (currentTimeout < 0) {
             // Unsupported value
-            summary = "";
+            summary = preference.getContext().getString(R.string.never_sleep);
         } else {
             final CharSequence[] entries = preference.getEntries();
             final CharSequence[] values = preference.getEntryValues();
             int best = 0;
             for (int i = 0; i < values.length; i++) {
                 long timeout = Long.parseLong(values[i].toString());
-                if (currentTimeout >= timeout) {
+                if (currentTimeout == timeout) {
                     best = i;
                 }
             }

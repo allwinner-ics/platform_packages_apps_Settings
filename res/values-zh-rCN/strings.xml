@@ -1583,4 +1583,6 @@
     <string name="screen_adaption_summary_on">点击确认后重启生效</string>
     <string name="display_mode_selector_title">显示模式</string>
     <string name="screen_adaption_setting">屏幕适配</string>
+    <string name="never_sleep">从不休眠</string>
+    <string name="sd_scan_title">启用SD卡上的媒体扫描</string>
 </resources>

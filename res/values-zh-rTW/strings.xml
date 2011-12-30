@@ -1574,4 +1574,5 @@
     <string name="percentage" msgid="5866131581207788624">"<xliff:g id="NUMBER">%d</xliff:g>%%"</string>
     <string name="tscalibration_title">"校準觸摸屏"</string>
     <string name="accelerometer_coordinate_title">重力感應座標系</string>
+    <string name="never_sleep">從不休眠</string>
 </resources>

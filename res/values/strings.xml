@@ -3777,4 +3777,8 @@ found in the list of installed apps.</string>
     <string name="screen_adaption_summary_on">Works after restart</string>
     <string name="display_mode_selector_title">Display mode</string>
     <string name="screen_adaption_setting">screen adaption</string>
+    
+    <string name="never_sleep">Never sleep</string>
+    
+    <string name="sd_scan_title">Enable media scanning on sd card</string>
 </resources>

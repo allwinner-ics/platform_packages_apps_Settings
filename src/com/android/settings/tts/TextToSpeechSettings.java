@@ -269,15 +269,23 @@ public class TextToSpeechSettings extends SettingsPreferenceFragment implements
 
     private String getDefaultSampleString() {
         if (mTts != null && mTts.getLanguage() != null) {
-            final String currentLang = mTts.getLanguage().getISO3Language();
-            String[] strings = getActivity().getResources().getStringArray(
-                    R.array.tts_demo_strings);
-            String[] langs = getActivity().getResources().getStringArray(
-                    R.array.tts_demo_string_langs);
-
-            for (int i = 0; i < strings.length; ++i) {
-                if (langs[i].equals(currentLang)) {
-                    return strings[i];
+            final String ttsLang = Settings.Secure.getString(getContentResolver(),
+                    Settings.Secure.TTS_DEFAULT_LOCALE);
+            final String ttsEngine = Settings.Secure.getString(getContentResolver(),
+                    Settings.Secure.TTS_DEFAULT_SYNTH);
+            String str[] = ttsLang.split(":");
+            if(str.length==2 && str[0].equals(ttsEngine)){
+                Locale locale = new Locale(str[1]);
+                final String currentLang = locale.getISO3Language();
+                String[] strings = getActivity().getResources().getStringArray(
+                        R.array.tts_demo_strings);
+                String[] langs = getActivity().getResources().getStringArray(
+                        R.array.tts_demo_string_langs);
+    
+                for (int i = 0; i < strings.length; ++i) {
+                    if (langs[i].equals(currentLang)) {
+                        return strings[i];
+                    }
                 }
             }
         }

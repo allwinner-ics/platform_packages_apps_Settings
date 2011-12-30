@@ -22,15 +22,23 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.os.storage.IMountService;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.provider.Settings;
 import android.text.format.Formatter;
+import android.util.Log;
 
 import com.android.settings.R;
 import com.android.settings.deviceinfo.StorageMeasurement.MeasurementReceiver;
@@ -64,6 +72,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
     private StorageMeasurement mMeasurement;
 
     private boolean mAllowFormat;
+    
+    private CheckBoxPreference mMediaScaning;
 
     static class CategoryInfo {
         final int mTitle;
@@ -204,6 +214,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
             mFormatPreference.setTitle(R.string.sd_format);
             mFormatPreference.setSummary(R.string.sd_format_summary);
         }
+        mMediaScaning = new CheckBoxPreference(getContext());
     }
 
     public StorageVolume getStorageVolume() {
@@ -233,6 +244,16 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
         addPreference(mMountTogglePreference);
         if (mFormatPreference != null) {
             addPreference(mFormatPreference);
+        }
+        
+        if(mStorageVolume != null && mStorageVolume.getPath().contains("sd") && 
+                !mStorageVolume.getPath().contentEquals(Environment.getExternalStorageDirectory().toString())){
+            Log.d(Memory.TAG, "add media scanning checkbox to category");
+            mMediaScaning.setTitle(R.string.sd_scan_title);
+            boolean scanMode = (Settings.System.getInt(getContext().getContentResolver(),
+                    Settings.System.IS_SCAN_TF_CARD,0)==1);
+            mMediaScaning.setChecked(scanMode);
+            addPreference(mMediaScaning);
         }
 
         mMountTogglePreference.setEnabled(true);
@@ -393,6 +414,33 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
 
     public boolean mountToggleClicked(Preference preference) {
         return preference == mMountTogglePreference;
+    }
+    
+    public void mediaScanningToggleClicked(Preference preference){
+        if(preference == mMediaScaning){            
+            if(mMediaScaning.isChecked()){
+                IBinder service = ServiceManager.getService("mount");
+                IMountService mountService = IMountService.Stub.asInterface(service);
+                Settings.System.putInt(getContext().getContentResolver(), 
+                        Settings.System.IS_SCAN_TF_CARD,1);
+                try{
+                    StorageVolume[] volumeList = mStorageManager.getVolumeList();
+                    for(StorageVolume volume:volumeList){
+                        if(Environment.MEDIA_MOUNTED.equals(mountService.getVolumeState(volume.getPath())) &&
+                                volume.getPath().contains("sd") && 
+                                !volume.getPath().contentEquals(Environment.getExternalStorageDirectory().toString())){
+                            getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" 
+                                    + volume.toString())));
+                        }
+                    }
+                }catch(RemoteException e){
+                    Log.e(Memory.TAG, "Remote service error:" + e);
+                }
+            }else{
+                Settings.System.putInt(getContext().getContentResolver(), 
+                        Settings.System.IS_SCAN_TF_CARD,0);
+            }
+        }
     }
 
     public Intent intentForClick(Preference preference) {

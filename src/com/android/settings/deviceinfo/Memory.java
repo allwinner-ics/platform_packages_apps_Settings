@@ -46,7 +46,7 @@ import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 
 public class Memory extends SettingsPreferenceFragment {
-    private static final String TAG = "MemorySettings";
+    public static final String TAG = "MemorySettings";
 
     private static final int DLG_CONFIRM_UNMOUNT = 1;
     private static final int DLG_ERROR_UNMOUNT = 2;
@@ -221,6 +221,7 @@ public class Memory extends SettingsPreferenceFragment {
                 }
                 return true;
             }
+            svpc.mediaScanningToggleClicked(preference);
         }
 
         return false;
