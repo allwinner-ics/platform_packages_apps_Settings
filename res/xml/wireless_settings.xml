@@ -24,6 +24,11 @@
         android:disableDependentsState="true" />
 
     <PreferenceScreen
+        android:fragment="com.android.settings.ethernet.EthernetSettings"
+        android:key="ethernet_settings"
+        android:title="@string/eth_settings_title" />
+
+    <PreferenceScreen
         android:fragment="com.android.settings.vpn2.VpnSettings"
         android:key="vpn_settings"
         android:title="@string/vpn_settings_title" />
@@ -32,6 +37,16 @@
         android:fragment="com.android.settings.TetherSettings"
         android:key="tether_settings"
         android:title="@string/tether_settings_title_all" />
+
+    <PreferenceScreen
+        android:key="wimax_settings"
+        android:title="@string/wimax_settings"
+        android:summary="@string/wimax_settings_summary" >
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.android.settings.wimax"
+            android:targetClass="com.android.settings.wimax.WimaxSettings" />
+    </PreferenceScreen>
 
     <CheckBoxPreference
         android:key="toggle_nfc"

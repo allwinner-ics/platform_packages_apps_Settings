@@ -55,8 +55,8 @@ public class ScreenAdaption extends PreferenceActivity
 	        
 	    WindowManager wm = (WindowManager)getSystemService(WINDOW_SERVICE);
 	    android.view.Display display = wm.getDefaultDisplay();
-	    int width     = display.getWidth();
-	    int height    = display.getHeight();
+	    int width     = display.getRawWidth();
+	    int height    = display.getRawHeight();
 	        
 	    String summary = getResources().getString(R.string.screen_adaption_summary_off);
 	    mSAToggle.setSummaryOff(summary + " " + width + " * " + height);
@@ -75,8 +75,8 @@ public class ScreenAdaption extends PreferenceActivity
 
             WindowManager wm = (WindowManager)getSystemService(WINDOW_SERVICE);
             Display display = wm.getDefaultDisplay();
-            int width     = display.getWidth();
-            int height    = display.getHeight();
+            int width     = display.getRawWidth();
+            int height    = display.getRawHeight();
             
             String summary = getResources().getString(R.string.screen_adaption_summary_off);
             mSAToggle.setSummaryOff(summary + " " + width + " * " + height);

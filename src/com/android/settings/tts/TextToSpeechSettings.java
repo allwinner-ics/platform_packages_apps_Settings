@@ -41,6 +41,7 @@ import android.speech.tts.TtsEngines;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Checkable;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Locale;
@@ -273,20 +274,25 @@ public class TextToSpeechSettings extends SettingsPreferenceFragment implements
                     Settings.Secure.TTS_DEFAULT_LOCALE);
             final String ttsEngine = Settings.Secure.getString(getContentResolver(),
                     Settings.Secure.TTS_DEFAULT_SYNTH);
-            String str[] = ttsLang.split(":");
-            if(str.length==2 && str[0].equals(ttsEngine)){
-                Locale locale = new Locale(str[1]);
-                final String currentLang = locale.getISO3Language();
-                String[] strings = getActivity().getResources().getStringArray(
-                        R.array.tts_demo_strings);
-                String[] langs = getActivity().getResources().getStringArray(
-                        R.array.tts_demo_string_langs);
+            final String lang;
+            if(ttsLang == null){
+                Toast.makeText(getActivity(), R.string.default_tts_speech_is_not_found, Toast.LENGTH_SHORT).show();
+                return null;
+            }else{
+                String str[] = ttsLang.split(":");
+                if(str.length != 2 || !str[0].equals(ttsEngine)){return null;}
+                lang = str[1];
+            }
+            Locale locale = new Locale(lang);
+            final String currentLang = locale.getISO3Language();
+            String[] strings = getActivity().getResources().getStringArray(
+                    R.array.tts_demo_strings);
+            String[] langs = getActivity().getResources().getStringArray(
+                    R.array.tts_demo_string_langs);
     
-                for (int i = 0; i < strings.length; ++i) {
-                    if (langs[i].equals(currentLang)) {
-                        return strings[i];
-                    }
-                }
+            for (int i = 0; i < strings.length; ++i) {
+                Log.d(TAG, langs[i]);
+                if (langs[i].equals(currentLang)) {return strings[i];}
             }
         }
         return null;

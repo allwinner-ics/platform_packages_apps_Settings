@@ -73,7 +73,10 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
 
     private boolean mAllowFormat;
     
+    private static final int MEDIA_SCANNING_TYPE_SD = 1;
+    private static final int MEDIA_SCANNING_TYPE_USB = 2;
     private CheckBoxPreference mMediaScaning;
+    private int mMediaScanningType = 0;
 
     static class CategoryInfo {
         final int mTitle;
@@ -245,15 +248,27 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
         if (mFormatPreference != null) {
             addPreference(mFormatPreference);
         }
-        
+        //----------------------
+        //add for media scanning
         if(mStorageVolume != null && mStorageVolume.getPath().contains("sd") && 
                 !mStorageVolume.getPath().contentEquals(Environment.getExternalStorageDirectory().toString())){
             Log.d(Memory.TAG, "add media scanning checkbox to category");
-            mMediaScaning.setTitle(R.string.sd_scan_title);
+            mMediaScaning.setTitle(String.format(
+                    getContext().getResources().getString(R.string.media_scan_title), getTitle()));
             boolean scanMode = (Settings.System.getInt(getContext().getContentResolver(),
                     Settings.System.IS_SCAN_TF_CARD,0)==1);
             mMediaScaning.setChecked(scanMode);
             addPreference(mMediaScaning);
+            mMediaScanningType = MEDIA_SCANNING_TYPE_SD;
+        }else if(mStorageVolume != null && mStorageVolume.getPath().contains("usb")){
+            Log.d(Memory.TAG, "add media scanning checkbox to category");
+            mMediaScaning.setTitle(String.format(
+                    getContext().getResources().getString(R.string.media_scan_title), getTitle()));
+            boolean scanMode = (Settings.System.getInt(getContext().getContentResolver(),
+                    Settings.System.IS_SCAN_USB_HOST,0)==1);
+            mMediaScaning.setChecked(scanMode);
+            addPreference(mMediaScaning);
+            mMediaScanningType = MEDIA_SCANNING_TYPE_USB;
         }
 
         mMountTogglePreference.setEnabled(true);
@@ -419,26 +434,35 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory implemen
     public void mediaScanningToggleClicked(Preference preference){
         if(preference == mMediaScaning){            
             if(mMediaScaning.isChecked()){
-                IBinder service = ServiceManager.getService("mount");
-                IMountService mountService = IMountService.Stub.asInterface(service);
-                Settings.System.putInt(getContext().getContentResolver(), 
-                        Settings.System.IS_SCAN_TF_CARD,1);
                 try{
-                    StorageVolume[] volumeList = mStorageManager.getVolumeList();
-                    for(StorageVolume volume:volumeList){
-                        if(Environment.MEDIA_MOUNTED.equals(mountService.getVolumeState(volume.getPath())) &&
-                                volume.getPath().contains("sd") && 
-                                !volume.getPath().contentEquals(Environment.getExternalStorageDirectory().toString())){
-                            getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" 
-                                    + volume.toString())));
-                        }
-                    }
-                }catch(RemoteException e){
-                    Log.e(Memory.TAG, "Remote service error:" + e);
+                    IBinder service = ServiceManager.getService("mount");
+                    IMountService mountService = IMountService.Stub.asInterface(service);
+                    getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" 
+                            + mStorageVolume.getPath().toString())));                    
+                }catch(Exception e){
+                    Log.e(Memory.TAG, "enable media scanning error:" + e);
+                }
+                switch(mMediaScanningType){
+                    case MEDIA_SCANNING_TYPE_SD:
+                        Settings.System.putInt(getContext().getContentResolver(), 
+                                Settings.System.IS_SCAN_TF_CARD,1);
+                        break;
+                    case MEDIA_SCANNING_TYPE_USB:
+                        Settings.System.putInt(getContext().getContentResolver(), 
+                                Settings.System.IS_SCAN_USB_HOST,1);
+                        break;
                 }
             }else{
-                Settings.System.putInt(getContext().getContentResolver(), 
-                        Settings.System.IS_SCAN_TF_CARD,0);
+                switch(mMediaScanningType){
+                    case MEDIA_SCANNING_TYPE_SD:
+                        Settings.System.putInt(getContext().getContentResolver(), 
+                                Settings.System.IS_SCAN_TF_CARD,0);
+                        break;
+                    case MEDIA_SCANNING_TYPE_USB:
+                        Settings.System.putInt(getContext().getContentResolver(), 
+                                Settings.System.IS_SCAN_USB_HOST,0);
+                        break;
+                }
             }
         }
     }

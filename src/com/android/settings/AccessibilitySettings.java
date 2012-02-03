@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -62,6 +63,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.internal.content.PackageMonitor;
 import com.android.settings.AccessibilitySettings.ToggleSwitch.OnBeforeCheckedChangeListener;
@@ -109,6 +111,8 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         "toggle_power_button_ends_call_preference";
     private static final String TOGGLE_AUTO_ROTATE_SCREEN_PREFERENCE =
         "toggle_auto_rotate_screen_preference";
+    private static final String TOGGLE_SPEAK_PASSWORD_PREFERENCE =
+        "toggle_speak_password_preference";
     private static final String TOGGLE_TOUCH_EXPLORATION_PREFERENCE =
         "toggle_touch_exploration_preference";
     private static final String SELECT_LONG_PRESS_TIMEOUT_PREFERENCE =
@@ -160,6 +164,7 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mToggleLargeTextPreference;
     private CheckBoxPreference mTogglePowerButtonEndsCallPreference;
     private CheckBoxPreference mToggleAutoRotateScreenPreference;
+    private CheckBoxPreference mToggleSpeakPasswordPreference;
     private Preference mToggleTouchExplorationPreference;
     private ListPreference mSelectLongPressTimeoutPreference;
     private AccessibilityEnableScriptInjectionPreference mToggleScriptInjectionPreference;
@@ -214,6 +219,8 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         } else if (mToggleAutoRotateScreenPreference == preference) {
             handleToggleAutoRotateScreenPreferenceClick();
             return true;
+        } else if (mToggleSpeakPasswordPreference == preference) {
+            handleToggleSpeakPasswordPreferenceClick();
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -249,6 +256,12 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         }
     }
 
+    private void handleToggleSpeakPasswordPreferenceClick() {
+        Settings.Secure.putInt(getContentResolver(),
+                Settings.Secure.ACCESSIBILITY_SPEAK_PASSWORD,
+                mToggleSpeakPasswordPreference.isChecked() ? 1 : 0);
+    }
+
     private void initializeAllPreferences() {
         mServicesCategory = (PreferenceCategory) findPreference(SERVICES_CATEGORY);
         mSystemsCategory = (PreferenceCategory) findPreference(SYSTEM_CATEGORY);
@@ -270,6 +283,10 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         // Auto-rotate screen
         mToggleAutoRotateScreenPreference =
             (CheckBoxPreference) findPreference(TOGGLE_AUTO_ROTATE_SCREEN_PREFERENCE);
+
+        // Speak passwords.
+        mToggleSpeakPasswordPreference =
+            (CheckBoxPreference) findPreference(TOGGLE_SPEAK_PASSWORD_PREFERENCE);
 
         // Touch exploration enabled.
         mToggleTouchExplorationPreference = findPreference(TOGGLE_TOUCH_EXPLORATION_PREFERENCE);
@@ -430,6 +447,11 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
                 Settings.System.ACCELEROMETER_ROTATION, 0) != 0;
         mToggleAutoRotateScreenPreference.setChecked(autoRotationEnabled);
 
+        // Speak passwords.
+        final boolean speakPasswordEnabled = Settings.Secure.getInt(getContentResolver(),
+                Settings.Secure.ACCESSIBILITY_SPEAK_PASSWORD, 0) != 0;
+        mToggleSpeakPasswordPreference.setChecked(speakPasswordEnabled);
+
         // Touch exploration enabled.
         if (AccessibilityManager.getInstance(getActivity()).isEnabled()) {
             mSystemsCategory.addPreference(mToggleTouchExplorationPreference);
@@ -498,7 +520,13 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
                                         DEFAULT_SCREENREADER_MARKET_LINK);
                                 Uri marketUri = Uri.parse(screenreaderMarketLink);
                                 Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
-                                startActivity(marketIntent);
+                                try {
+                                    startActivity(marketIntent);
+                                } catch (ActivityNotFoundException e) {
+                                    Toast.makeText(getActivity(), R.string.google_market_is_not_found, Toast.LENGTH_SHORT).show();
+                                } catch (SecurityException e) {
+                                    Toast.makeText(getActivity(), R.string.google_market_is_not_found, Toast.LENGTH_SHORT).show();
+                                }
                             }
                     })
                     .setNegativeButton(android.R.string.cancel, null)
