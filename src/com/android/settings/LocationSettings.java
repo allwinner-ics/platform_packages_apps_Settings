@@ -105,7 +105,7 @@ public class LocationSettings extends SettingsPreferenceFragment
         if (Utils.isWifiOnly(getActivity())) {
             mNetwork.setSummaryOn(R.string.location_neighborhood_level_wifi);
         }
-        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)){
+        if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)){
             getPreferenceScreen().removePreference(mGps);
         }
 

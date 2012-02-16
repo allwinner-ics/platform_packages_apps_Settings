@@ -281,7 +281,11 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 			@Override
 			protected Void doInBackground(Void... unused){
 				try{
-					mEthManager.setEnabled(enable);
+					if ((mEthManager.isConfigured() != true) && (enable == true)){
+						publishProgress();
+					}else{
+						mEthManager.setEnabled(enable);
+					}
 					Thread.sleep(500);
 				}catch(Exception e){
 				}
@@ -289,6 +293,12 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 			}
 
 			protected void onProgressUpdate(Void... unused){
+				Preference tmpPre = mEthDevices.getPreference(0);
+				if( tmpPre instanceof EthPreference){
+					EthPreference tmpEthPre = (EthPreference)tmpPre;
+					mEthManager.updateDevInfo(tmpEthPre.getConfigure());
+					mEthManager.setEnabled(enable);
+				}
 			}
 
 			protected void onPostExecute(Void unused) {
