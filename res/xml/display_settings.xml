@@ -75,5 +75,6 @@
                 android:targetPackage="org.zeroxlab.util.tscal"
                 android:targetClass="org.zeroxlab.util.tscal.TSCalibration" />
         </Preference>
+        <CheckBoxPreference android:title="@string/smart_brightness_title" android:key="smart_brightness" android:summary="@string/smart_brightness_summary" android:defaultValue="false"/>
 
 </PreferenceScreen>

@@ -214,6 +214,7 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 				protected Void doInBackground(Void... unused){
 					try{
 						mEthManager.updateDevInfo(devIfo);
+						mEthManager.setEnabled(mEthEnable.isChecked());
 						Thread.sleep(500);
 					}catch(Exception e){
 					}
@@ -386,11 +387,13 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 						mIpPreference.setSummary(l.getAddress().getHostAddress());
 					}
 					EthernetDevInfo saveInfo = mEthManager.getSavedConfig();
-					upDeviceList(mSelected.getKey());
-					saveInfo.setHwaddr(mSelected.getConfigure().getHwaddr());
-					mSelected.update(saveInfo);
-					mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryon)
-							+ mSelected.getConfigure().getBootName());
+					if(mSelected != null){
+						upDeviceList(mSelected.getKey());
+						saveInfo.setHwaddr(mSelected.getConfigure().getHwaddr());
+						mSelected.update(saveInfo);
+						mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryon)
+								+ mSelected.getConfigure().getBootName());
+					}
 					break;
 			case EthernetManager.EVENT_CONFIGURATION_FAILED:
 					mIpPreference.setSummary("0.0.0.0");

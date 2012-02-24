@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_brightness_title">智能背光</string>
+    <string name="smart_brightness_summary">自动调整背光亮度</string>
+
+    
+</resources>

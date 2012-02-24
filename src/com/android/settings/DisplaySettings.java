@@ -39,7 +39,7 @@ import android.util.Log;
 import android.view.IWindowManager;
 import android.view.Surface;
 import android.view.WindowManager;
-
+import android.view.DisplayManager;
 import java.util.ArrayList;
 
 public class DisplaySettings extends SettingsPreferenceFragment implements
@@ -56,6 +56,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_CALABRATION = "tscalibration";
     private static final String KEY_ACCELEROMETER_COORDINATE = "accelerometer_coornadite";
     private static final String KEY_SCREEN_ADAPTION = "screen_adaption";
+    private static final String KEY_SMART_BRIGHTNESS = "smart_brightness";
+    private CheckBoxPreference mSmartBrightness;
     private CheckBoxPreference mAccelerometer;
     private ListPreference mFontSizePref;
     private CheckBoxPreference mNotificationPulse;
@@ -130,6 +132,16 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     Settings.System.ACCELEROMETER_COORDINATE);
             mAccelerometerCoordinate.setValue(value);
             updateAccelerometerCoordinateSummary(value);
+        }
+        
+        mSmartBrightness = (CheckBoxPreference)findPreference(KEY_SMART_BRIGHTNESS);
+        mSmartBrightness.setOnPreferenceChangeListener(this);
+        if(!getResources().getBoolean(R.bool.has_smart_brightness)){
+            getPreferenceScreen().removePreference(mSmartBrightness) ;  
+        }else{
+            boolean enable = Settings.System.getInt(getContentResolver(),
+                    Settings.System.SMART_BRIGHTNESS_ENABLE,0) != 0 ? true : false;
+            mSmartBrightness.setChecked(enable);
         }
     }
 
@@ -321,6 +333,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             }catch (NumberFormatException e) {
                 Log.e(TAG, "could not persist key accelerometer coordinate setting", e);
             }
+        }
+        if (KEY_SMART_BRIGHTNESS.equals(key)){
+            //
+            int value = (Boolean)objValue == true ? 1 : 0;
+            Settings.System.putInt(getContentResolver(), 
+                    Settings.System.SMART_BRIGHTNESS_ENABLE, value);
+            DisplayManager dm = (DisplayManager)getSystemService(Context.DISPLAY_SERVICE);;
+            dm.setDisplayBacklightMode(value);
         }
         return true;
     }

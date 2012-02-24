@@ -27,4 +27,7 @@
     <bool name="config_additional_system_update_setting_enable">false</bool>
     <!-- Settings -->
     <bool name="has_sim_card_lock">false</bool>
+    
+    <!-- Display the smart brightness toggle , please set true in nuclear-->
+    <bool name="has_smart_brightness">false</bool>
 </resources>

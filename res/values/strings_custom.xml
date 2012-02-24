@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_brightness_title">Smart backlight</string>
+    <string name="smart_brightness_summary">Auto adjust the backlight.</string>
+
+    
+</resources>
