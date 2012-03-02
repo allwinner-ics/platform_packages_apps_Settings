@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.PowerManager;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -57,11 +58,13 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_ACCELEROMETER_COORDINATE = "accelerometer_coornadite";
     private static final String KEY_SCREEN_ADAPTION = "screen_adaption";
     private static final String KEY_SMART_BRIGHTNESS = "smart_brightness";
+    private static final String KEY_SMART_BRIGHTNESS_PREVIEW = "key_smart_brightness_preview";
     private CheckBoxPreference mSmartBrightness;
     private CheckBoxPreference mAccelerometer;
     private ListPreference mFontSizePref;
     private CheckBoxPreference mNotificationPulse;
     private Preference mCalibration;
+    private CheckBoxPreference mSmartBrightnessPreview;
     private ListPreference mAccelerometerCoordinate;
 
     private final Configuration mCurConfig = new Configuration();
@@ -133,7 +136,9 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             mAccelerometerCoordinate.setValue(value);
             updateAccelerometerCoordinateSummary(value);
         }
-        
+        mSmartBrightnessPreview = new CheckBoxPreference(this.getActivity());
+        mSmartBrightnessPreview.setTitle(R.string.smart_brightness_preview);
+        mSmartBrightnessPreview.setKey(KEY_SMART_BRIGHTNESS_PREVIEW);
         mSmartBrightness = (CheckBoxPreference)findPreference(KEY_SMART_BRIGHTNESS);
         mSmartBrightness.setOnPreferenceChangeListener(this);
         if(!getResources().getBoolean(R.bool.has_smart_brightness)){
@@ -142,6 +147,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             boolean enable = Settings.System.getInt(getContentResolver(),
                     Settings.System.SMART_BRIGHTNESS_ENABLE,0) != 0 ? true : false;
             mSmartBrightness.setChecked(enable);
+            mSmartBrightnessPreview.setOnPreferenceChangeListener(this);
+            if(enable){
+                getPreferenceScreen().addPreference(mSmartBrightnessPreview);
+            }
         }
     }
 
@@ -339,8 +348,19 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             int value = (Boolean)objValue == true ? 1 : 0;
             Settings.System.putInt(getContentResolver(), 
                     Settings.System.SMART_BRIGHTNESS_ENABLE, value);
-            DisplayManager dm = (DisplayManager)getSystemService(Context.DISPLAY_SERVICE);;
-            dm.setDisplayBacklightMode(value);
+            PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);;
+            pm.setWiseBacklightMode(value);
+            if((Boolean)objValue){
+                getPreferenceScreen().addPreference(mSmartBrightnessPreview);
+            }
+        }
+        if(KEY_SMART_BRIGHTNESS_PREVIEW.equals(key)){
+            int value = (Boolean)objValue == true ? 0x11 : 0x10;
+            Settings.System.putInt(getContentResolver(), 
+                    Settings.System.SMART_BRIGHTNESS_PREVIEW_ENABLE, value);
+            PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);;
+            pm.setWiseBacklightMode(value);
+
         }
         return true;
     }
