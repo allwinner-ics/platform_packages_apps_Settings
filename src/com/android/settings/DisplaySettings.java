@@ -120,8 +120,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         int height    = display.getHeight();
         Log.d(TAG,"rate1 = " + (width * 3.0f / (height * 5.0f)) + 
                  " rate2 = " + (width * 5.0f / (height * 3.0f)));
-        if((width * 3.0f / (height * 5.0f) == 1.0f) ||
-           (width * 5.0f / (height * 3.0f) == 1.0f) && mScreenAdaption!=null){
+        if(((width * 3.0f / (height * 5.0f) == 1.0f) ||
+           (width * 5.0f / (height * 3.0f) == 1.0f)) && mScreenAdaption!=null){
             getPreferenceScreen().removePreference(mScreenAdaption) ;   
         }
         

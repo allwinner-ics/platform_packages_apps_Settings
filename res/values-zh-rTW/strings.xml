@@ -1336,6 +1336,10 @@
     <string name="privacy_settings_title" msgid="4856282165773594890">"備份與重設"</string>
     <string name="backup_section_title" msgid="7952232291452882740">"備份與還原"</string>
     <string name="personal_data_section_title" msgid="7815209034443782061">"個人資料"</string>
+    <string name="system_update_section_title" msgid="7815209034443782061">"系統升級"</string>
+    <string name="system_recovery_title" msgid="7815209034443782061">"Recovery模式"</string>
+    <string name="system_recovery_summary" msgid="7815209034443782061">"重啟進入系統Recovery模式,可以清除分區數據或系統升級"</string>
+    <string name="system_recovery_dialog_massage" msgid="7815209034443782061">"立即重啟進入系統Recovery模式,可以清除分區數據或系統升級？"</string>
     <string name="backup_data_title" msgid="1239105919852668016">"備份我的資料"</string>
     <string name="backup_data_summary" msgid="9157861529438245957">"將應用程式資料、Wi-Fi 密碼，以及其他設定備份到 Google 伺服器"</string>
     <string name="backup_configure_account_title" msgid="3790872965773196615">"備份帳戶"</string>

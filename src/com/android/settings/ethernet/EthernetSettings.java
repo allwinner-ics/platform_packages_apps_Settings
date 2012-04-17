@@ -122,9 +122,11 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 		mIpPreference = findPreference(KEY_IP_PRE);
 		mMacPreference= findPreference(KEY_MAC_PRE);
 
+		/**  first, we must get the Service.  **/
 		mService = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		mEthManager = (EthernetManager) getSystemService(Context.ETHERNET_SERVICE);
 
+		/**  Now, it should check the EthernetState.  **/
 		if(mEthManager.getState() == EthernetManager.ETHERNET_STATE_ENABLED){
 			mEthEnable.setChecked(true);
 		}else{
@@ -138,9 +140,11 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 				mEthEnable.setSummaryOff(getActivity().getString(R.string.eth_dev_summaryoff));
 			}
 		}
+		
+		/**  Get the SaveConfig and update for Dialog.  **/
 		EthernetDevInfo saveInfo = mEthManager.getSavedConfig();
 		if(saveInfo != null){
-			upDeviceList(saveInfo.getIfName());
+			upDeviceList(saveInfo);
 		}else{
 		    upDeviceList(null);
 		}
@@ -159,34 +163,12 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
     @Override
     public void onResume() {
         super.onResume();
-
         getActivity().registerReceiver(mEthStateReceiver, mFilter);
     }
 
     @Override
     public void onPause() {
         getActivity().unregisterReceiver(mEthStateReceiver);
-		/*
-		Log.d(TAG, "yes, we come onPause here");
-		AlertDialog.Builder messageDialog = new AlertDialog.Builder(getActivity());
-		messageDialog.setTitle("AlertDialog");
-		messageDialog.setMessage("Are you want to save?");
-		messageDialog.setPositiveButton("OK",
-				new DialogInterface.OnClickListener(){
-					@Override
-					public void onClick(DialogInterface dialog, int which){
-						Log.e(TAG, "OK is Clicked");
-					}
-				});
-		messageDialog.setNegativeButton("Cancel",
-				new DialogInterface.OnClickListener(){
-					@Override
-					public void onClick(DialogInterface dialog, int which){
-						Log.e(TAG, "Cancel is Clicked");
-					}
-				});
-		messageDialog.show();
-		*/
         super.onPause();
     }
 
@@ -198,7 +180,7 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 
     @Override
     public void onClick(DialogInterface dialog, int whichbutton) {
-		//get the information form dialog.
+		/**  get the information form dialog.  **/
 		final EthernetDevInfo devIfo = mDialog.getDevInfo();
         if (whichbutton == DialogInterface.BUTTON_POSITIVE) {
 
@@ -214,7 +196,6 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 				protected Void doInBackground(Void... unused){
 					try{
 						mEthManager.updateDevInfo(devIfo);
-						mEthManager.setEnabled(mEthEnable.isChecked());
 						Thread.sleep(500);
 					}catch(Exception e){
 					}
@@ -225,10 +206,12 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 				}
 
 				protected void onPostExecute(Void unused) {
+					EthPreference uppref = (EthPreference) mEthDevices.findPreference(devIfo.getIfName());
+					if(uppref != null)
+						uppref.update(devIfo);
 					mEthConfigure.setEnabled(true);
 					mEthEnable.setEnabled(true);
 					mEthDevices.setEnabled(true);
-					//upDeviceList(devIfo.getIfName());
 				}
 			}.execute();
 
@@ -258,7 +241,6 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 			mDialog.setOnDismissListener(this);
 			mDialog.show();
 		}
-            //upDeviceList(mSelected);
         return true;
     }
 
@@ -321,11 +303,13 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
         return true;
     }
 
-	private void upDeviceList(String ifname){
+	private void upDeviceList(EthernetDevInfo DevIfo){
+		String ifname = "";
 		EthPreference upEthdevice = null;
+		EthPreference tmpPreference = null;
 		
-		if(ifname == null)
-			ifname = "";
+		if(DevIfo != null)
+			ifname = DevIfo.getIfName();
 
 		if(mEthDevices != null)
 			mEthDevices.removeAll();
@@ -334,11 +318,12 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 		if(mListDevices != null){
 			for(EthernetDevInfo deviceinfo : mListDevices){
 				if(!deviceinfo.getIfName().equals(ifname)){
-					EthPreference tmpPreference = new EthPreference(getActivity(), deviceinfo);
+					tmpPreference = new EthPreference(getActivity(), deviceinfo);
 					mEthDevices.addPreference(tmpPreference);
 					mSelected = tmpPreference;
 				}else{
-					upEthdevice = new EthPreference(getActivity(), deviceinfo);
+					DevIfo.setHwaddr(deviceinfo.getHwaddr());
+					upEthdevice = new EthPreference(getActivity(), DevIfo);
 				}
 			}
 			if(upEthdevice != null){
@@ -368,7 +353,7 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 
 			if(event == EthernetManager.EVENT_NEWDEV || event == EthernetManager.EVENT_DEVREM){
 				if(mSelected != null){
-					upDeviceList(mSelected.getKey());
+					upDeviceList(mSelected.getConfigure());
 				}else{
 					upDeviceList(null);
 				}
@@ -383,29 +368,27 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 
 			switch(event){
 			case EthernetManager.EVENT_CONFIGURATION_SUCCEEDED:
-					for(LinkAddress l : linkProperties.getLinkAddresses()){
-						mIpPreference.setSummary(l.getAddress().getHostAddress());
-					}
-					EthernetDevInfo saveInfo = mEthManager.getSavedConfig();
-					if(mSelected != null){
-						upDeviceList(mSelected.getKey());
-						saveInfo.setHwaddr(mSelected.getConfigure().getHwaddr());
-						mSelected.update(saveInfo);
-						mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryon)
-								+ mSelected.getConfigure().getBootName());
-					}
-					break;
+				for(LinkAddress l : linkProperties.getLinkAddresses()){
+					mIpPreference.setSummary(l.getAddress().getHostAddress());
+				}
+				EthernetDevInfo saveInfo = mEthManager.getSavedConfig();
+				if((mSelected != null) && (saveInfo != null)){
+					upDeviceList(saveInfo);
+					mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryon)
+							+ mSelected.getConfigure().getIfName());
+				}
+				break;
 			case EthernetManager.EVENT_CONFIGURATION_FAILED:
-					mIpPreference.setSummary("0.0.0.0");
-					break;
+				mIpPreference.setSummary("0.0.0.0");
+				break;
 			case EthernetManager.EVENT_DISCONNECTED:
-					if(mEthEnable.isChecked())
-						mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
-					else
-						mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
-					break;
+				if(mEthEnable.isChecked())
+					mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
+				else
+					mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
+				break;
 			default:
-					break;
+				break;
 			}
         } 
     }
@@ -437,7 +420,7 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 			if(mEthConf == null)
 				return;
 
-			setTitle(mEthConf.getBootName());
+			setTitle(mEthConf.getIfName());
 			if(mEthConf.getConnectMode() == EthernetDevInfo.ETHERNET_CONN_MODE_DHCP){
 				mode = context.getString(R.string.eth_dhcp_mode);
 			}else{
@@ -447,7 +430,6 @@ public class EthernetSettings extends SettingsPreferenceFragment implements
 			setSummary("MAC: " + hwaddr + " -- " 
 						+ context.getString(R.string.eth_ip_mode) + mode);
 			setKey(mEthConf.getIfName());
-			notifyHierarchyChanged();
 		}
 
 		public void update(EthernetDevInfo info){

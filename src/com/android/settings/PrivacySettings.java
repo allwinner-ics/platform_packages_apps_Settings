@@ -16,6 +16,10 @@
 
 package com.android.settings;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.backup.IBackupManager;
@@ -26,6 +30,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.PowerManager;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
@@ -43,9 +48,11 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
     private static final String BACKUP_DATA = "backup_data";
     private static final String AUTO_RESTORE = "auto_restore";
     private static final String CONFIGURE_ACCOUNT = "configure_account";
+	private static final String SYSTEM_RECOVERY = "system_recovery";
     private IBackupManager mBackupManager;
     private CheckBoxPreference mBackup;
     private CheckBoxPreference mAutoRestore;
+	private PreferenceScreen mRecovery;
     private Dialog mConfirmDialog;
     private PreferenceScreen mConfigure;
 
@@ -64,6 +71,7 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
         mBackup = (CheckBoxPreference) screen.findPreference(BACKUP_DATA);
         mAutoRestore = (CheckBoxPreference) screen.findPreference(AUTO_RESTORE);
         mConfigure = (PreferenceScreen) screen.findPreference(CONFIGURE_ACCOUNT);
+		mRecovery = (PreferenceScreen) screen.findPreference(SYSTEM_RECOVERY);
 
         // Vendor specific
         if (getActivity().getPackageManager().
@@ -107,6 +115,8 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
             } catch (RemoteException e) {
                 mAutoRestore.setChecked(!curState);
             }
+        }else if(preference == mRecovery){
+            showRecoveryDialog();
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -125,6 +135,40 @@ public class PrivacySettings extends SettingsPreferenceFragment implements
                 .show();
     }
 
+	private void showRecoveryDialog(){
+		mConfirmDialog = new AlertDialog.Builder(getActivity())
+			.setTitle(R.string.system_recovery_title)
+			.setMessage(getActivity().getString(R.string.system_recovery_dialog_massage))
+			.setPositiveButton(android.R.string.ok,new DialogInterface.OnClickListener(){
+			     @Override
+				 public void onClick(DialogInterface dialog, int which){
+				      rebootRecovery();
+                  }
+		     })
+			.setNegativeButton(android.R.string.cancel,this)
+			.show();
+
+
+	}
+	private void rebootRecovery(){
+		 File RECOVERY_DIR = new File("/cache/recovery");    
+		 File COMMAND_FILE = new File(RECOVERY_DIR, "command");    
+		 String SHOW_TEXT="--show_text";
+		 RECOVERY_DIR.mkdirs();  // In case we need it         
+		 COMMAND_FILE.delete();  // In case it's not writable       		
+		 try {		    
+		 	FileWriter command = new FileWriter(COMMAND_FILE);			
+		    command.write(SHOW_TEXT);            
+			command.write("\n");            
+			command.close();		
+		 } catch (IOException e) {			
+		  // TODO Auto-generated catch block			
+		  e.printStackTrace();		
+		  }       		 
+		 PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);	     
+		 pm.reboot("recovery");    
+
+	}
     /*
      * Creates toggles for each available location provider
      */

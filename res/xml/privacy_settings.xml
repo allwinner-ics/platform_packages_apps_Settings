@@ -47,5 +47,13 @@
         android:title="@string/master_clear_title"
         android:summary="@string/master_clear_summary"
         android:fragment="com.android.settings.MasterClear" />
+    <PreferenceCategory
+            android:title="@string/system_update_section_title"/>
+        <!-- recovery -->
+    <PreferenceScreen
+        android:key="system_recovery"
+        android:title="@string/system_recovery_title"
+        android:summary="@string/system_recovery_summary"
+         />
 
 </PreferenceScreen>

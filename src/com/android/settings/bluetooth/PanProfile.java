@@ -58,8 +58,10 @@ final class PanProfile implements LocalBluetoothProfile {
 
     PanProfile(Context context) {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        adapter.getProfileProxy(context, new PanServiceListener(),
-                BluetoothProfile.PAN);
+        if(adapter != null) {
+	        adapter.getProfileProxy(context, new PanServiceListener(),
+	                BluetoothProfile.PAN);
+	    }
     }
 
     public boolean isConnectable() {

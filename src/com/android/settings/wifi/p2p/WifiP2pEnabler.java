@@ -93,8 +93,10 @@ public class WifiP2pEnabler implements Preference.OnPreferenceChangeListener {
         final boolean enable = (Boolean) value;
         if (enable) {
             mWifiP2pManager.enableP2p(mChannel);
+            mCheckBox.setEnabled(true);
         } else {
             mWifiP2pManager.disableP2p(mChannel);
+            mCheckBox.setEnabled(true);
         }
         return false;
     }

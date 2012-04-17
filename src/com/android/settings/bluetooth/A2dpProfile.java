@@ -61,8 +61,10 @@ final class A2dpProfile implements LocalBluetoothProfile {
 
     A2dpProfile(Context context) {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        adapter.getProfileProxy(context, new A2dpServiceListener(),
-                BluetoothProfile.A2DP);
+        if(adapter != null) {
+	        adapter.getProfileProxy(context, new A2dpServiceListener(),
+	                BluetoothProfile.A2DP);
+        }
     }
 
     public boolean isConnectable() {
